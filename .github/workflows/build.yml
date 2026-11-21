@@ -19,7 +19,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build mod
-        run: gradle clean build --info
+        run: gradle clean build --no-build-cache --rerun-tasks --info
       - name: Verify mod JAR contents
         shell: bash
         run: |
