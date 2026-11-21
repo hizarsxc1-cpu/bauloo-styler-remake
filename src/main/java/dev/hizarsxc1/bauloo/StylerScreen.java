@@ -13,31 +13,46 @@ public final class StylerScreen extends Screen {
     @Override
     protected void init() {
         String[] categories = StylerConfig.categories();
-        int buttonWidth = Math.min(190, (this.width - 36) / 2);
+        int columns = this.width >= 520 ? 2 : 1;
+        int outer = 12;
         int gap = 8;
-        int totalWidth = buttonWidth * 2 + gap;
-        int startX = (this.width - totalWidth) / 2;
-        int startY = Math.max(48, this.height / 2 - 78);
+        int groupWidth = Math.max(120, (this.width - outer * 2 - gap * (columns - 1)) / columns);
+        int startX = (this.width - (groupWidth * columns + gap * (columns - 1))) / 2;
+        int startY = 62;
+        int rowHeight = 38;
 
         for (int i = 0; i < categories.length; i++) {
             final String category = categories[i];
-            int column = i % 2;
-            int row = i / 2;
-            int x = startX + column * (buttonWidth + gap);
-            int y = startY + row * 32;
-            addDrawableChild(ButtonWidget.builder(buttonText(category), button -> {
+            int column = i % columns;
+            int row = i / columns;
+            int x = startX + column * (groupWidth + gap);
+            int y = startY + row * rowHeight;
+            int styleWidth = Math.max(72, groupWidth * 43 / 100);
+            int toggleWidth = groupWidth - styleWidth - 4;
+
+            addDrawableChild(ButtonWidget.builder(toggleText(category), button -> {
                 StylerConfig.toggle(category);
-                button.setMessage(buttonText(category));
-            }).dimensions(x, y, buttonWidth, 24).build());
+                button.setMessage(toggleText(category));
+            }).dimensions(x, y, toggleWidth, 26).build());
+
+            addDrawableChild(ButtonWidget.builder(styleText(category), button -> {
+                StylerConfig.cycleStyle(category);
+                button.setMessage(styleText(category));
+            }).dimensions(x + toggleWidth + 4, y, styleWidth, 26).build());
         }
 
+        int rows = (categories.length + columns - 1) / columns;
+        int doneY = Math.min(this.height - 30, startY + rows * rowHeight + 6);
         addDrawableChild(ButtonWidget.builder(Text.literal("Done"), button -> close())
-                .dimensions(this.width / 2 - 75, Math.min(this.height - 34, startY + 4 * 32 + 8), 150, 20)
-                .build());
+                .dimensions(this.width / 2 - 65, doneY, 130, 20).build());
     }
 
-    private Text buttonText(String category) {
-        return Text.literal(category + ": " + (StylerConfig.isEnabled(category) ? "ON" : "OFF"));
+    private Text toggleText(String category) {
+        return Text.literal(category + " " + (StylerConfig.isEnabled(category) ? "ON" : "OFF"));
+    }
+
+    private Text styleText(String category) {
+        return Text.literal("< " + StylerConfig.styleName(category) + " >");
     }
 
     @Override
@@ -45,8 +60,8 @@ public final class StylerScreen extends Screen {
         this.renderBackground(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 22, 0xFFFFFF);
         context.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal("Independent style controls - press G to open"),
-                this.width / 2, 36, 0xA0A0A0);
+                Text.literal("Toggle a category or tap its style selector"),
+                this.width / 2, 39, 0xA0A0A0);
         super.render(context, mouseX, mouseY, delta);
     }
 
