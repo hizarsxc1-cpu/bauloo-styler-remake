@@ -2,7 +2,7 @@
 
 An independent Fabric client mod for Minecraft Java **1.21.0**. Implemented from scratch without the original mod's code or assets.
 
-## Current build: 0.4.0
+## Current build: 0.5.0
 - Press **G** to open the settings menu.
 - Sixteen independently configurable style families.
 - ON/OFF and four selectable presets per family.
@@ -10,6 +10,8 @@ An independent Fabric client mod for Minecraft Java **1.21.0**. Implemented from
 - Two-page layout adapts to narrow/mobile screens.
 - Selected presets drive lightweight client-side particle accents.
 - Menu does not pause single-player.
+- Exports four independently-authored 16x16 Glowstone texture packs into the game's `resourcepacks` folder.
+- After exporting, enable the chosen `Bauloo Glowstone` pack under Options > Resource Packs, then apply changes.
 
 ## Style families
 - Crystal: Classic, Aqua, Violet, Invisible
@@ -29,7 +31,7 @@ An independent Fabric client mod for Minecraft Java **1.21.0**. Implemented from
 - Extras: Classic, Spark, Soft, Minimal
 - Cosmetics: Classic, Orbit, Halo, Stardust
 
-**Scope note:** These presets currently control lightweight visual accents. They do not yet replace block/item textures, armor models, skyboxes, or cosmetic models. Those systems are planned as separate implementation stages; the original mod's code and assets are not included.
+**Scope note:** The Glowstone exporter is the first real texture-pack integration. Other presets still control lightweight visual accents and do not yet replace block/item textures, armor models, skyboxes, or cosmetic models. The original mod's code and assets are not included.
 
 ## Build
 Requires Java 21 and Gradle 8.10.2.
