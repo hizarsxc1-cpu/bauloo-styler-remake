@@ -20,6 +20,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build mod
         run: gradle clean build --no-build-cache --rerun-tasks --info
+      - name: Debug jar outputs
+        run: |
+          find build -type f -name '*.jar' -print -exec ls -l {} \\;
+          for f in $(find build -type f -name '*.jar'); do echo "CONTENTS: $f"; jar tf "$f" | head -40; done
       - name: Verify mod JAR contents
         shell: bash
         run: |
