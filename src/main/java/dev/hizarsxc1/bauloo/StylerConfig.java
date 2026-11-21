@@ -17,20 +17,56 @@ public final class StylerConfig {
     private static final String[] CATEGORIES = {
             "Crystal", "Anchor", "Armor", "Tools", "Fire", "Sky", "Extras", "Cosmetics"
     };
+    private static final String[][] STYLES = {
+            {"Classic", "Aqua", "Violet", "Invisible"},
+            {"Classic", "Blue Pulse", "Purple Glow", "Soft Light"},
+            {"Classic", "Emerald", "Sakura", "Obsidian"},
+            {"Classic", "Electric", "Frost", "Ember"},
+            {"Classic", "Low Flame", "Blue Flame", "Off"},
+            {"Classic", "Cloudy", "Aurora", "Night"},
+            {"Classic", "Spark", "Soft", "Minimal"},
+            {"Classic", "Orbit", "Halo", "Stardust"}
+    };
     private static final Map<String, Boolean> ENABLED = new LinkedHashMap<>();
+    private static final Map<String, Integer> SELECTED = new LinkedHashMap<>();
 
     static {
-        for (String category : CATEGORIES) ENABLED.put(category, false);
+        for (String category : CATEGORIES) {
+            ENABLED.put(category, false);
+            SELECTED.put(category, 0);
+        }
     }
 
     private StylerConfig() {}
 
     public static String[] categories() { return CATEGORIES.clone(); }
     public static boolean isEnabled(String category) { return ENABLED.getOrDefault(category, false); }
+    public static int styleIndex(String category) { return SELECTED.getOrDefault(category, 0); }
+
+    public static String styleName(String category) {
+        int categoryIndex = categoryIndex(category);
+        if (categoryIndex < 0) return "Classic";
+        String[] choices = STYLES[categoryIndex];
+        return choices[Math.floorMod(styleIndex(category), choices.length)];
+    }
 
     public static void toggle(String category) {
         ENABLED.put(category, !isEnabled(category));
         save();
+    }
+
+    public static void cycleStyle(String category) {
+        int index = categoryIndex(category);
+        if (index < 0) return;
+        SELECTED.put(category, (styleIndex(category) + 1) % STYLES[index].length);
+        save();
+    }
+
+    private static int categoryIndex(String category) {
+        for (int i = 0; i < CATEGORIES.length; i++) {
+            if (CATEGORIES[i].equals(category)) return i;
+        }
+        return -1;
     }
 
     public static void load() {
@@ -40,9 +76,17 @@ public final class StylerConfig {
         }
         try (Reader reader = Files.newBufferedReader(FILE)) {
             ConfigData data = GSON.fromJson(reader, ConfigData.class);
-            if (data != null && data.enabled != null) {
-                for (String category : CATEGORIES) {
-                    ENABLED.put(category, data.enabled.getOrDefault(category, false));
+            if (data != null) {
+                if (data.enabled != null) {
+                    for (String category : CATEGORIES) {
+                        ENABLED.put(category, data.enabled.getOrDefault(category, false));
+                    }
+                }
+                if (data.styles != null) {
+                    for (String category : CATEGORIES) {
+                        int max = STYLES[categoryIndex(category)].length;
+                        SELECTED.put(category, Math.floorMod(data.styles.getOrDefault(category, 0), max));
+                    }
                 }
             }
         } catch (Exception ignored) {
@@ -54,7 +98,7 @@ public final class StylerConfig {
         try {
             Files.createDirectories(FILE.getParent());
             try (Writer writer = Files.newBufferedWriter(FILE)) {
-                GSON.toJson(new ConfigData(ENABLED), writer);
+                GSON.toJson(new ConfigData(ENABLED, SELECTED), writer);
             }
         } catch (Exception ignored) {
             // Config failures must not crash the game.
@@ -63,6 +107,10 @@ public final class StylerConfig {
 
     private static final class ConfigData {
         private Map<String, Boolean> enabled;
-        private ConfigData(Map<String, Boolean> enabled) { this.enabled = new LinkedHashMap<>(enabled); }
+        private Map<String, Integer> styles;
+        private ConfigData(Map<String, Boolean> enabled, Map<String, Integer> styles) {
+            this.enabled = new LinkedHashMap<>(enabled);
+            this.styles = new LinkedHashMap<>(styles);
+        }
     }
 }
