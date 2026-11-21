@@ -52,6 +52,16 @@ public final class StylerConfig {
     public static String[] categories() { return CATEGORIES.clone(); }
     public static boolean isEnabled(String category) { return ENABLED.getOrDefault(category, false); }
     public static int styleIndex(String category) { return SELECTED.getOrDefault(category, 0); }
+    public static String[] styles(String category) {
+        int index = categoryIndex(category);
+        return index < 0 ? new String[]{"Classic"} : STYLES[index].clone();
+    }
+    public static void selectStyle(String category, int styleIndex) {
+        int index = categoryIndex(category);
+        if (index < 0) return;
+        SELECTED.put(category, Math.floorMod(styleIndex, STYLES[index].length));
+        save();
+    }
 
     public static String styleName(String category) {
         int index = categoryIndex(category);
