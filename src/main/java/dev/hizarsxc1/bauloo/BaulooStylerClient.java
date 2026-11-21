@@ -13,6 +13,7 @@ public final class BaulooStylerClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         StylerConfig.load();
+        VisualEffects.register();
         openMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.bauloo_styler.open",
                 InputUtil.Type.KEYSYM,
