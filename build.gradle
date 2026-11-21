@@ -59,5 +59,6 @@ tasks.named('compileJava') {
 }
 
 tasks.named('jar') {
-    from sourceSets.main.output
+    from("$buildDir/classes/java/main")
+    from("$buildDir/resources/main")
 }
