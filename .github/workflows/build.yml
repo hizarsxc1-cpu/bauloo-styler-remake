@@ -22,8 +22,8 @@ jobs:
         run: gradle clean build --no-build-cache --rerun-tasks --info
       - name: Debug jar outputs
         run: |
-          find build -type f -name '*.jar' -print -exec ls -l {} \\;
-          for f in $(find build -type f -name '*.jar'); do echo "CONTENTS: $f"; jar tf "$f" | head -40; done
+          find build -type f -name '*.jar' -print
+          for f in $(find build -type f -name '*.jar'); do ls -l "$f"; echo "CONTENTS: $f"; jar tf "$f" | head -40; done
       - name: Verify mod JAR contents
         shell: bash
         run: |
