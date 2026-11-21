@@ -15,7 +15,9 @@ public final class StylerConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("bauloo-styler-remake.json");
     private static final String[] CATEGORIES = {
-            "Crystal", "Anchor", "Armor", "Tools", "Fire", "Sky", "Extras", "Cosmetics"
+            "Crystal", "Anchor", "Armor", "Tools", "Fire", "Sky",
+            "Glowstone", "Deepslate", "Grass", "Inventory", "Pickaxe", "Snow",
+            "Stone", "Sword", "Extras", "Cosmetics"
     };
     private static final String[][] STYLES = {
             {"Classic", "Aqua", "Violet", "Invisible"},
@@ -24,6 +26,14 @@ public final class StylerConfig {
             {"Classic", "Electric", "Frost", "Ember"},
             {"Classic", "Low Flame", "Blue Flame", "Off"},
             {"Classic", "Cloudy", "Aurora", "Night"},
+            {"Classic", "Aqua Plus", "Blueberry", "Purple"},
+            {"Classic", "Black", "Ice", "Lavender"},
+            {"Classic", "Lush", "Lime", "Dark"},
+            {"Classic", "Amaranth", "Blossom", "Doge"},
+            {"Classic", "Clear Vision", "Lavender", "Marlow"},
+            {"Classic", "Ice", "Blue", "Purple"},
+            {"Classic", "Black", "White", "Red"},
+            {"Classic", "Lavender", "Blue", "Doge"},
             {"Classic", "Spark", "Soft", "Minimal"},
             {"Classic", "Orbit", "Halo", "Stardust"}
     };
@@ -44,9 +54,9 @@ public final class StylerConfig {
     public static int styleIndex(String category) { return SELECTED.getOrDefault(category, 0); }
 
     public static String styleName(String category) {
-        int categoryIndex = categoryIndex(category);
-        if (categoryIndex < 0) return "Classic";
-        String[] choices = STYLES[categoryIndex];
+        int index = categoryIndex(category);
+        if (index < 0) return "Classic";
+        String[] choices = STYLES[index];
         return choices[Math.floorMod(styleIndex(category), choices.length)];
     }
 
