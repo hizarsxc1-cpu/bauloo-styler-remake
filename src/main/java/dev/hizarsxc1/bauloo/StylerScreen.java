@@ -53,6 +53,19 @@ public final class StylerScreen extends Screen {
         int rows = (last - first + columns - 1) / columns;
         int navY = Math.min(this.height - 28, startY + rows * rowHeight + 4);
         int navWidth = 76;
+        addDrawableChild(ButtonWidget.builder(Text.literal("Export Glowstone Pack"), button -> {
+            try {
+                java.nio.file.Path pack = StylePackExporter.exportGlowstone(StylerConfig.styleIndex("Glowstone"));
+                if (client != null && client.player != null) {
+                    client.player.sendMessage(Text.literal("Exported: " + pack.getFileName() + ". Enable it in Options > Resource Packs."), false);
+                }
+            } catch (java.io.IOException exception) {
+                if (client != null && client.player != null) {
+                    client.player.sendMessage(Text.literal("Could not export Glowstone pack: " + exception.getMessage()), false);
+                }
+            }
+        }).dimensions(this.width / 2 - 82, this.height - 54, 164, 20).build());
+
         if (page > 0) {
             addDrawableChild(ButtonWidget.builder(Text.literal("< Back"), button -> {
                 page--;
