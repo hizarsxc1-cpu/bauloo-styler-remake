@@ -1,6 +1,7 @@
 package dev.hizarsxc1.bauloo;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 
@@ -12,69 +13,54 @@ public final class VisualEffects {
             if (client.player == null || client.world == null) return;
 
             int age = client.player.age;
-            double px = client.player.getX();
-            double py = client.player.getY();
-            double pz = client.player.getZ();
+            double x = client.player.getX();
+            double y = client.player.getY();
+            double z = client.player.getZ();
 
-            // Crystal: a small enchantment shimmer near the upper body.
             if (StylerConfig.isEnabled("Crystal") && age % 6 == 0) {
-                ring(client, ParticleTypes.ENCHANT, age, px, py + 1.15, pz, 0.42, 0.02);
+                emit(client, "Crystal", age, x, y + 1.15, z, 0.42, 0.02,
+                        ParticleTypes.ENCHANT, ParticleTypes.END_ROD, ParticleTypes.WITCH, ParticleTypes.CRIT);
             }
-
-            // Anchor: restrained portal motes around the feet.
             if (StylerConfig.isEnabled("Anchor") && age % 9 == 0) {
-                ring(client, ParticleTypes.PORTAL, age, px, py + 0.18, pz, 0.48, 0.025);
+                emit(client, "Anchor", age, x, y + 0.18, z, 0.48, 0.025,
+                        ParticleTypes.PORTAL, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.REVERSE_PORTAL, ParticleTypes.END_ROD);
             }
-
-            // Armor: occasional defensive-looking crit sparkles; visual only.
             if (StylerConfig.isEnabled("Armor") && age % 8 == 0) {
-                ring(client, ParticleTypes.CRIT, age, px, py + 0.9, pz, 0.58, 0.015);
+                emit(client, "Armor", age, x, y + 0.9, z, 0.58, 0.015,
+                        ParticleTypes.CRIT, ParticleTypes.HAPPY_VILLAGER, ParticleTypes.ENCHANT, ParticleTypes.TOTEM_OF_UNDYING);
             }
-
-            // Tools: tiny electric sparks around the hands/waist area.
             if (StylerConfig.isEnabled("Tools") && age % 10 == 0) {
-                ring(client, ParticleTypes.ELECTRIC_SPARK, age, px, py + 0.72, pz, 0.38, 0.01);
+                emit(client, "Tools", age, x, y + 0.72, z, 0.38, 0.01,
+                        ParticleTypes.ELECTRIC_SPARK, ParticleTypes.CRIT, ParticleTypes.FLAME, ParticleTypes.END_ROD);
             }
-
-            // Fire: subtle flame accents around the player's feet.
-            if (StylerConfig.isEnabled("Fire") && age % 8 == 0) {
-                ring(client, ParticleTypes.FLAME, age, px, py + 0.12, pz, 0.38, 0.018);
+            if (StylerConfig.isEnabled("Fire") && age % 8 == 0 && StylerConfig.styleIndex("Fire") != 3) {
+                emit(client, "Fire", age, x, y + 0.12, z, 0.38, 0.018,
+                        ParticleTypes.FLAME, ParticleTypes.SMOKE, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.ASH);
             }
-
-            // Sky: a few slow cloud motes above the player's head.
             if (StylerConfig.isEnabled("Sky") && age % 12 == 0) {
-                double angle = age * 0.19;
-                client.world.addParticle(ParticleTypes.CLOUD,
-                        px + Math.cos(angle) * 0.5, py + 2.0,
-                        pz + Math.sin(angle) * 0.5, 0.0, 0.006, 0.0);
+                emit(client, "Sky", age, x, y + 2.0, z, 0.5, 0.006,
+                        ParticleTypes.CLOUD, ParticleTypes.ASH, ParticleTypes.END_ROD, ParticleTypes.ENCHANT);
             }
-
-            // Extras: occasional happy-villager sparkle, kept low frequency.
             if (StylerConfig.isEnabled("Extras") && age % 16 == 0) {
-                double angle = age * 0.23;
-                client.world.addParticle(ParticleTypes.HAPPY_VILLAGER,
-                        px + Math.cos(angle) * 0.62, py + 1.45,
-                        pz + Math.sin(angle) * 0.62, 0.0, 0.008, 0.0);
+                emit(client, "Extras", age, x, y + 1.45, z, 0.62, 0.008,
+                        ParticleTypes.HAPPY_VILLAGER, ParticleTypes.NOTE, ParticleTypes.CRIT, ParticleTypes.WITCH);
             }
-
-            // Cosmetics: orbiting End Rod sparkle.
             if (StylerConfig.isEnabled("Cosmetics") && age % 4 == 0) {
-                double angle = age * 0.16;
-                client.world.addParticle(ParticleTypes.END_ROD,
-                        px + Math.cos(angle) * 0.72,
-                        py + 0.85 + Math.sin(angle * 1.7) * 0.12,
-                        pz + Math.sin(angle) * 0.72, 0.0, 0.012, 0.0);
+                emit(client, "Cosmetics", age, x, y + 0.85, z, 0.72, 0.012,
+                        ParticleTypes.END_ROD, ParticleTypes.ENCHANT, ParticleTypes.HEART, ParticleTypes.TOTEM_OF_UNDYING);
             }
         });
     }
 
-    private static void ring(net.minecraft.client.MinecraftClient client,
-                             ParticleEffect particle, int age,
-                             double x, double y, double z,
-                             double radius, double velocityY) {
-        double angle = age * 0.27;
+    private static void emit(MinecraftClient client, String category, int age,
+                             double x, double y, double z, double radius, double velocityY,
+                             ParticleEffect... choices) {
+        int selected = Math.floorMod(StylerConfig.styleIndex(category), choices.length);
+        ParticleEffect particle = choices[selected];
+        double angle = age * (0.16 + selected * 0.055);
         double px = x + Math.cos(angle) * radius;
         double pz = z + Math.sin(angle) * radius;
-        client.world.addParticle(particle, px, y, pz, 0.0, velocityY, 0.0);
+        double py = y + Math.sin(angle * 1.7) * (0.035 + selected * 0.018);
+        client.world.addParticle(particle, px, py, pz, 0.0, velocityY, 0.0);
     }
 }
