@@ -37,3 +37,27 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+}
+
+tasks.named('compileJava') {
+    doFirst {
+        println "Bauloo Styler Java sources: " + source.files.collect { it.path }
+    }
+    doLast {
+        println "Bauloo Styler compiled classes: " + fileTree(destinationDirectory).files.collect { it.path }
+    }
+}
+
+tasks.named('jar') {
+    from sourceSets.main.output
+}
